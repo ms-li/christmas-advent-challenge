@@ -110,6 +110,37 @@ select,.control{color:#ffe7bb;background:#3a1b1d;border:1px solid #bb996a;border
 #winterPanels .winterPanel.right{left:76.5%;width:20.5%}
 #scene[data-theme="winter"] .hotspot{background:rgba(118,142,209,.12);color:#fff;border:0;box-shadow:none}
 #scene[data-theme="winter"] .hotspot.opened{background:rgba(118,142,209,.06);color:#d7c19b}
+
+/* V2.2: neutral snow-white rather than warm translucency */
+#modal .dialog{
+  background-color:rgba(255,255,255,.91);
+  background-image:none;
+  border:0;
+  backdrop-filter:blur(2px) saturate(.8);
+  -webkit-backdrop-filter:blur(2px) saturate(.8);
+}
+#modal .dialog .teacherNotes{
+  background:rgba(255,255,255,.78);
+}
+#modal .dialog .modalClose{background:rgba(255,255,255,.77);color:#652033}
+/* Town Square: readable but translucent blue placards behind both groups of numbers */
+#scene[data-theme="winter"] #winterPanels .winterPanel{
+  background-color:rgba(118,142,209,.32);
+  background-image:none;
+  border:0;
+  box-shadow:none;
+}
+#scene[data-theme="winter"] .hotspot{
+  background-color:rgba(118,142,209,.22);
+  color:#fff;
+  border:0;
+  box-shadow:none;
+}
+#scene[data-theme="winter"] .hotspot:hover:not(:disabled){background:rgba(118,142,209,.28)}
+#scene[data-theme="winter"] .hotspot.opened{
+  background:rgba(118,142,209,.12);
+  color:#e7d19c;
+}
 </style></head>
 <body><header><h1>❄ Christmas Advent Challenge</h1><div class="controls">
 <label>Level <select id="level"><option>B1</option><option selected>B2</option><option>C1</option></select></label>
