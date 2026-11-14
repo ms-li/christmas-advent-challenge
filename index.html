@@ -86,6 +86,30 @@ select,.control{color:#ffe7bb;background:#3a1b1d;border:1px solid #bb996a;border
 @media(max-width:850px){#mobileBoard{display:none!important} .hotspot{font-size:clamp(10px,2.3vw,20px)}}
 @media(max-width:480px){.hotspot{font-size:clamp(9px,2.5vw,15px)} .dialog .actions button{flex:1 1 0;font-size:11px}}
 @media(max-width:900px) and (orientation:portrait){#rotateNotice{display:block}}
+
+/* V2.1: translucent snow-white challenge panel and Winter Town Square boards */
+#modal{background:rgba(3,12,11,.29)}
+#modal .dialog{
+  background:rgba(255,255,255,.72);
+  border:0;
+  backdrop-filter:blur(3px);
+  -webkit-backdrop-filter:blur(3px);
+  box-shadow:0 16px 56px rgba(0,0,0,.36);
+}
+#modal .dialog .teacherNotes{background:rgba(255,255,255,.54)}
+#modal .dialog .modalClose{background:rgba(255,255,255,.58)}
+#winterPanels{display:none;position:absolute;inset:0;pointer-events:none;z-index:1}
+#scene[data-theme="winter"] #winterPanels{display:block}
+#winterPanels .winterPanel{
+  position:absolute;top:30%;height:53%;
+  border:0;border-radius:14px;
+  background:rgba(118,142,209,.20);
+  box-shadow:0 7px 24px rgba(9,19,36,.16);
+}
+#winterPanels .winterPanel.left{left:4.5%;width:22.5%}
+#winterPanels .winterPanel.right{left:76.5%;width:20.5%}
+#scene[data-theme="winter"] .hotspot{background:rgba(118,142,209,.12);color:#fff;border:0;box-shadow:none}
+#scene[data-theme="winter"] .hotspot.opened{background:rgba(118,142,209,.06);color:#d7c19b}
 </style></head>
 <body><header><h1>❄ Christmas Advent Challenge</h1><div class="controls">
 <label>Level <select id="level"><option>B1</option><option selected>B2</option><option>C1</option></select></label>
@@ -93,7 +117,7 @@ select,.control{color:#ffe7bb;background:#3a1b1d;border:1px solid #bb996a;border
 <button class="control selected" id="classroom">Classroom ✓</button><button class="control" id="new">New Game</button><button class="control danger" id="end">End Session</button>
 </div></header>
 <div class="line"><span><strong id="turn">Teacher's turn</strong> · Find door <strong id="nextDoor">1</strong></span><div class="scores"><span>⚪ Teacher: <strong id="ts">0</strong></span><span>🔴 Student: <strong id="ss">0</strong></span><span><strong id="doors">0</strong>/24 opened</span></div></div>
-<main id="sceneWrap"><section id="scene" data-theme="village" aria-label="Christmas advent board and shared scoring tree"><div id="hotspots"></div><div id="ornaments"></div></section></main>
+<main id="sceneWrap"><section id="scene" data-theme="village" aria-label="Christmas advent board and shared scoring tree"><div id="winterPanels" aria-hidden="true"><div class="winterPanel left"></div><div class="winterPanel right"></div></div><div id="hotspots"></div><div id="ornaments"></div></section></main>
 <div id="mobileBoard" aria-label="Mobile door selection"></div><div id="rotateNotice">↻ Rotate your phone horizontally to see the full Advent scene.</div>
 <div id="bottom"><p id="message">Classroom mode: two players share one screen. Find door 1 to begin.</p><button id="help">How to play</button></div>
 <div id="modal" hidden><section class="dialog" id="dialog" role="dialog" aria-modal="true" aria-label="Christmas challenge"></section></div>
