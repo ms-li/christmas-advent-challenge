@@ -283,6 +283,16 @@ header{flex:0 0 auto}
 @keyframes ornamentArrive{0%{opacity:0;transform:translate(-50%,-90%) scale(.15) rotate(-22deg)}65%{opacity:1;transform:translate(-50%,-48%) scale(1.16) rotate(7deg)}100%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0)}}
 @media(prefers-reduced-motion:reduce){.ornament.new{animation:none}}
 @media(orientation:landscape) and (max-height:600px){.ornament{width:clamp(12px,2vw,23px);height:clamp(12px,2vw,23px)}}
+
+/* V3.2 game polish */
+#bottom #footerNext{color:#fff4d4;font:800 clamp(14px,1.3vw,20px) system-ui,sans-serif;white-space:nowrap}
+#bottom p{flex:1;text-align:center;font-size:12px}
+#scene[data-theme="village"] .hotspot:not(.opened){color:#a4132c!important;text-shadow:0 1px 2px #fff,0 0 3px #fff,0 0 7px #fff,1px 1px 0 #fff,-1px -1px 0 #fff}
+#scene[data-theme="village"] .hotspot.opened{color:#bda77e!important}
+.ornament{width:clamp(12px,1.65vw,26px)!important;height:clamp(12px,1.65vw,26px)!important}
+@media(orientation:landscape) and (max-height:600px){.ornament{width:clamp(9px,1.3vw,18px)!important;height:clamp(9px,1.3vw,18px)!important}}
+@media(max-width:900px) and (orientation:portrait){#bottom{display:none!important}}
+#finish .finalTitle{color:#792239}
 </style></head>
 <body><header><h1>❄ Christmas Advent Challenge</h1><div class="controls">
 <label><span class="controlLabel">Level</span><select id="level"><option>B1</option><option selected>B2</option><option>C1</option></select></label>
@@ -292,7 +302,7 @@ header{flex:0 0 auto}
 <div class="line"><span><strong id="turn">Teacher's turn</strong> · Find door <strong id="nextDoor">1</strong></span><div class="scores"><span>⚪ Teacher: <strong id="ts">0</strong></span><span>🔴 Student: <strong id="ss">0</strong></span><span><strong id="doors">0</strong>/24 opened</span></div></div>
 <main id="sceneWrap"><section id="scene" data-theme="village" aria-label="Christmas advent board and shared scoring tree"><div id="winterPanels" aria-hidden="true"><div class="winterPanel left"></div><div class="winterPanel right"></div></div><div id="hotspots"></div><div id="ornaments"></div></section></main>
 <div id="mobileBoard" aria-label="Mobile door selection"></div><div id="rotateNotice"><div class="rotateIcon" aria-hidden="true">↻</div><strong>Turn your phone sideways</strong><span>The Advent village is designed for landscape play.</span></div>
-<div id="bottom"><p id="message">Classroom mode: two players share one screen. Find door 1 to begin.</p><button id="help">How to play</button></div>
+<div id="bottom"><strong id="footerNext" aria-live="polite">Find door 1 next</strong><p id="message">Classroom mode: two players share one screen. Find door 1 to begin.</p><button id="help">How to play</button></div>
 <div id="modal" hidden><section class="dialog" id="dialog" role="dialog" aria-modal="true" aria-label="Christmas challenge"></section></div>
 <script>
 const BANK=[
@@ -356,13 +366,13 @@ village:[
 [94.6,25.2,5.4,11],[90.8,54.5,4.8,10],[96.2,54.5,4.8,10],[94.7,67.3,5.4,11]],
 workshop:[...Array(4)].flatMap((_,r)=>[...Array(6)].map((_,c)=>[33+c*10.8,30+r*12,8.8,10])),
 food:[
-[38,33,10.5,10],[51,32,10.5,10],[64,32,10,10],[80,33,10.5,10],
-[32.5,41.5,9,10],[42.5,42,9,10],[54,43,10,11],[69,44,13.5,16],[83,43,9,10],
-[28.7,54,8,11],[37.5,54,9,11],[47.5,54,9,11],[56.7,54,8,11],[65.5,60,8,11],[84.5,55,9,11],
-[32.6,65,10,10],[43.9,65,10,11],[55.3,65,9,11],[76.5,65,9,11],[85.5,65,9,11],
-[33.2,75,10,10],[44.5,75,10,10],[55.5,75,9,10],[66.6,75,9,10]],
+[39,20,10,11],[52,19.5,10,11],[65.5,19.5,11,11],[82,20.5,10,11],
+[33.5,36.5,9,11],[43.5,36.5,9,11],[55.5,37.5,11,12],[71,39.5,14,19],[86,38.5,10,12],
+[28.5,52,9,12],[38.5,52.5,10,12],[49,52.5,10,12],[58.5,52,8,12],[67.5,61.5,9,11],[86.5,53.5,10,12],
+[32.5,68.5,10,12],[46,67.5,10,11],[57,67.5,10,11],[77,61,10,12],[89,69,9,11],
+[35,80.5,10,11],[46.5,81.5,10,11],[57.5,81.5,10,11],[69,81,9,11]],
 winter:[...Array(4)].flatMap((_,r)=>[...Array(6)].map((_,c)=>[7.7+c*6.3+(c>2?53:0),37+r*12.8,5.3,9.5]))};
-const TREE={village:[65,17,34,75],workshop:[4.7,19,24,68],food:[2.5,17,21,60],winter:[36,20,31,71]};
+const TREE={village:[69,14,25,78],workshop:[4.7,17,24,68],food:[4,7,21,68],winter:[36,20,31,71]};
 const $=id=>document.getElementById(id);
 const shuffle=(arr)=>{arr=[...arr];for(let i=arr.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return arr};
 let state={turn:0,scores:[0,0],ornaments:[],nextOrnamentId:0,animatedIds:[],slotOrder:[],opened:[],used:[],numbers:[],ended:false,active:null};
@@ -371,14 +381,42 @@ function selectTask(){const items=BANK.filter(t=>t[0]===$("level").value&&!state
 const usedByCat={};state.used.forEach(title=>{let t=BANK.find(q=>q[2]===title);if(t)usedByCat[t[1]]=(usedByCat[t[1]]||0)+1});const min=Math.min(...items.map(t=>usedByCat[t[1]]||0));return shuffle(items.filter(t=>(usedByCat[t[1]]||0)===min))[0]}
 
 function makeOrnamentSpots(){
- const a=[];
- for(let row=0;row<10;row++){
-  const count=row+2, width=10+row*7.2, y=19+row*7;
-  for(let col=0;col<count;col++)a.push([50-width/2+width*(col+.5)/count,y]);
+ // Compact triangular lattice: no overlapping random clusters.
+ const spots=[];
+ for(let row=0;row<8;row++){
+  const count=2+row,y=14+row*10.3,width=18+row*10.3;
+  for(let col=0;col<count;col++)
+   spots.push([50-width/2+(col+.5)*width/count,y]);
  }
- return a;
+ return spots;
 }
 const ornamentSlots=makeOrnamentSpots();
+function spreadSlotOrder(){
+ // Greedy farthest-first ordering distributes early awards over the WHOLE tree.
+ // Stable shuffled tie-breaking avoids a mechanical top-to-bottom decoration pattern.
+ const remaining=shuffle(Array.from({length:ornamentSlots.length},(_,i)=>i));
+ const chosen=[],distance=(a,b)=>{
+  const dx=(a[0]-b[0])*.85,dy=a[1]-b[1];
+  return dx*dx+dy*dy;
+ };
+ while(remaining.length){
+  let best=0,bestScore=-1;
+  for(let i=0;i<remaining.length;i++){
+   const point=ornamentSlots[remaining[i]];
+   const score=chosen.length?Math.min(...chosen.map(id=>distance(point,ornamentSlots[id]))):0;
+   if(score>bestScore){best=i;bestScore=score}
+  }
+  chosen.push(remaining.splice(best,1)[0]);
+ }
+ return chosen;
+}
+function doorNumber(theme,index){
+ if(theme!=="food")return state.numbers[index];
+ const wreath=7,original=state.numbers.indexOf(24);
+ if(index===wreath)return 24;
+ if(index===original)return state.numbers[wreath];
+ return state.numbers[index];
+}
 const SHAPES=["bauble","star","bell"];
 function ornamentSVG(shape){
  const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
@@ -438,20 +476,21 @@ function fitScene(){
   scene.style.height=(width/ratio)+"px";
 }
 function render(){let theme=$("theme").value;$("scene").dataset.theme=theme;$("ts").textContent=state.scores[0];$("ss").textContent=state.scores[1];$("doors").textContent=state.opened.length;$("turn").textContent=state.ended?"Session finished":(state.turn?"Student":"Teacher")+"'s turn";
-$("nextDoor").textContent=Math.min(24,state.opened.length+1);let wrap=$("hotspots"),mobile=$("mobileBoard");wrap.replaceChildren();mobile.replaceChildren();POS[theme].forEach(([x,y,w,h],index)=>{let opened=state.opened.includes(index),n=state.numbers[index];let btn=document.createElement("button");btn.className="hotspot"+(opened?" opened":"");btn.style.left=x+"%";btn.style.top=y+"%";btn.style.width=w+"%";btn.style.height=h+"%";btn.textContent=n;btn.setAttribute("aria-label","Door "+n+(opened?", completed":""));btn.disabled=opened||state.ended||state.active!==null;btn.onclick=()=>openDoor(index);wrap.append(btn);
+$("nextDoor").textContent=state.ended?"✓":Math.min(24,state.opened.length+1);$("footerNext").textContent=state.ended?"All 24 doors opened!":"Find door "+Math.min(24,state.opened.length+1)+" next";let wrap=$("hotspots"),mobile=$("mobileBoard");wrap.replaceChildren();mobile.replaceChildren();POS[theme].forEach(([x,y,w,h],index)=>{let n=doorNumber(theme,index),opened=state.opened.includes(n);let btn=document.createElement("button");btn.className="hotspot"+(opened?" opened":"");btn.style.left=x+"%";btn.style.top=y+"%";btn.style.width=w+"%";btn.style.height=h+"%";btn.textContent=n;btn.setAttribute("aria-label","Door "+n+(opened?", completed":""));btn.disabled=opened||state.ended||state.active!==null;btn.onclick=()=>openDoor(index);wrap.append(btn);
 let small=document.createElement("button");small.textContent=n;small.className=opened?"opened":"";small.disabled=opened||state.ended||state.active!==null;small.onclick=()=>openDoor(index);mobile.append(small)});drawOrnaments();fitScene()}
 function showModal(){const m=$("modal");m.hidden=false}
 function hideModal(){state.active=null;$("modal").hidden=true;$("dialog").replaceChildren();render()}
 function actionButton(txt,cb,klass=""){const btn=document.createElement("button");btn.textContent=txt;btn.className=klass;btn.onclick=cb;return btn}
 function addPoints(p,n){for(let i=0;i<n;i++)addOrnament(p);finish()}
-function finish(){state.opened.push(state.active.index);state.used.push(state.active.task[2]);state.turn=1-state.turn;hideModal()}
+function finish(){state.opened.push(state.active.number);state.used.push(state.active.task[2]);state.turn=1-state.turn;hideModal();if(state.opened.length===24)finale(true)}
 function openDoor(index){
- if(state.ended||state.active!==null||state.opened.includes(index))return;
- const number=state.numbers[index],next=state.opened.length+1;
+ if(state.ended||state.active!==null)return;
+ const number=doorNumber($("theme").value,index),next=state.opened.length+1;
+ if(state.opened.includes(number))return;
  if(number!==next){$("message").textContent="Find door "+next+" to continue!";return}
  let task=selectTask();
  if(!task){$("message").textContent="No unused approved challenges remain for this level. We need more content for a full 24-door session.";return}
- state.active={index,task};render();const d=$("dialog");d.replaceChildren();
+ state.active={index,number,task};render();const d=$("dialog");d.replaceChildren();
  const close=document.createElement("button");close.type="button";close.className="modalClose";close.textContent="×";close.setAttribute("aria-label","Close challenge; keep door closed");close.onclick=hideModal;d.append(close);
  const c=document.createElement("div");c.className="type";c.textContent=CATS[task[1]]+" · "+$("level").value+" · Door "+number;
  const title=document.createElement("h2");title.textContent=task[2];
@@ -490,13 +529,13 @@ function openDoor(index){
  d.append(a);showModal()
 }
 
-function startNew(){if((state.opened.length||state.active!==null)&&!confirm("Start a new game? This clears the current progress."))return;state={turn:0,scores:[0,0],ornaments:[],nextOrnamentId:0,animatedIds:[],slotOrder:shuffle(Array.from({length:ornamentSlots.length},(_,i)=>i)),opened:[],used:[],numbers:shuffle(Array.from({length:24},(_,i)=>i+1)),ended:false,active:null};$("message").textContent="Classroom mode: two players share one screen. Choose a door to begin.";render()}
-function finale(){if(state.active!==null)return;if(!confirm("End this lesson and reveal the results?"))return;state.ended=true;render();const d=$("dialog");d.replaceChildren();const box=document.createElement("div");box.id="finish";const h=document.createElement("h2");h.className="finalTitle";h.textContent="✧ Christmas Grand Finale ✧";
+function startNew(){if((state.opened.length||state.active!==null)&&!confirm("Start a new game? This clears the current progress."))return;state={turn:0,scores:[0,0],ornaments:[],nextOrnamentId:0,animatedIds:[],slotOrder:spreadSlotOrder(),opened:[],used:[],numbers:shuffle(Array.from({length:24},(_,i)=>i+1)),ended:false,active:null};$("message").textContent="Classroom mode: two players share one screen. Choose a door to begin.";render()}
+function finale(automatic=false){if(state.active!==null)return;if(!automatic&&!confirm("End this lesson and reveal the results?"))return;state.ended=true;render();const d=$("dialog");d.replaceChildren();const box=document.createElement("div");box.id="finish";const h=document.createElement("h2");h.className="finalTitle";h.textContent="✧ Christmas Grand Finale ✧";
 const p=document.createElement("p");p.textContent=state.opened.length+" of 24 doors opened";const s=document.createElement("h2");s.textContent="⚪ "+state.scores[0]+" : "+state.scores[1]+" 🔴";
 const w=document.createElement("h2");w.textContent=state.scores[0]===state.scores[1]?"A festive draw!":state.scores[0]>state.scores[1]?"Teacher wins!":"Student wins!";
 const c=document.createElement("p");c.textContent="Our tree holds every decoration earned this session. Merry Christmas!";
 const a=document.createElement("div");a.className="actions";a.style.justifyContent="center";a.append(actionButton("See our decorated tree",hideModal),actionButton("New game",()=>{hideModal();startNew()},"alt"));box.append(h,p,s,w,c,a);d.append(box);showModal()}
-$("new").onclick=startNew;$("end").onclick=finale;$("level").onchange=()=>startNew();$("theme").onchange=render;window.addEventListener("resize",fitScene);window.addEventListener("orientationchange",()=>requestAnimationFrame(fitScene));$("classroom").onclick=()=>alert("Classroom mode is active. Both players use one screen. This Christmas prototype does not yet include remote synchronized rooms.");$("help").onclick=()=>alert("Take turns choosing a door. Speak, solve, or negotiate the revealed challenge. Players decide whether to award decorations. White is the teacher, dark red is the student. Click End Session at any time. This is a classroom prototype using the approved sample questions only.");
+$("new").onclick=startNew;$("end").onclick=()=>finale();$("level").onchange=()=>startNew();$("theme").onchange=render;window.addEventListener("resize",fitScene);window.addEventListener("orientationchange",()=>requestAnimationFrame(fitScene));$("classroom").onclick=()=>alert("Classroom mode is active. Both players use one screen. This Christmas prototype does not yet include remote synchronized rooms.");$("help").onclick=()=>alert("Take turns choosing a door. Speak, solve, or negotiate the revealed challenge. Players decide whether to award decorations. White is the teacher, dark red is the student. Click End Session at any time. This is a classroom prototype using the approved sample questions only.");
 window.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("modal").hidden&&!state.ended){hideModal()}});
 startNew();
 </script></body></html>
