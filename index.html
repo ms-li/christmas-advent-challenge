@@ -273,6 +273,16 @@ header{flex:0 0 auto}
   header{padding:9px 16px}
   #bottom{padding:6px 15px}
 }
+
+/* Tree ornaments: three SVG shapes, individually positioned, animated once */
+.ornament{display:block;position:absolute;transform:translate(-50%,-50%);width:clamp(9px,1.55vw,24px);height:clamp(9px,1.55vw,24px);font-size:inherit;line-height:normal;text-shadow:none;filter:drop-shadow(0 1px 2px #07150fbb);pointer-events:none;z-index:3}
+.ornament svg{width:100%;height:100%;display:block;overflow:visible}
+.ornament.teacher{color:#fffdf7;-webkit-text-stroke:0}
+.ornament.student{color:#86172d;-webkit-text-stroke:0}
+.ornament.new{animation:ornamentArrive .55s cubic-bezier(.2,1.1,.4,1) both}
+@keyframes ornamentArrive{0%{opacity:0;transform:translate(-50%,-90%) scale(.15) rotate(-22deg)}65%{opacity:1;transform:translate(-50%,-48%) scale(1.16) rotate(7deg)}100%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0)}}
+@media(prefers-reduced-motion:reduce){.ornament.new{animation:none}}
+@media(orientation:landscape) and (max-height:600px){.ornament{width:clamp(7px,1.25vw,16px);height:clamp(7px,1.25vw,16px)}}
 </style></head>
 <body><header><h1>❄ Christmas Advent Challenge</h1><div class="controls">
 <label><span class="controlLabel">Level</span><select id="level"><option>B1</option><option selected>B2</option><option>C1</option></select></label>
@@ -341,14 +351,68 @@ winter:[...Array(4)].flatMap((_,r)=>[...Array(6)].map((_,c)=>[7.7+c*6.3+(c>2?53:
 const TREE={village:[65,17,34,75],workshop:[4.7,19,24,68],food:[2.5,17,21,60],winter:[36,20,31,71]};
 const $=id=>document.getElementById(id);
 const shuffle=(arr)=>{arr=[...arr];for(let i=arr.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return arr};
-let state={turn:0,scores:[0,0],opened:[],used:[],numbers:[],ended:false,active:null};
+let state={turn:0,scores:[0,0],ornaments:[],nextOrnamentId:0,animatedIds:[],slotOrder:[],opened:[],used:[],numbers:[],ended:false,active:null};
 function eligible(t){const m=state.scores[state.turn],o=state.scores[1-state.turn];return t[5]==="transfer1"?o>=1:t[5]==="trade2"?m>=1&&o>=2:true}
 function selectTask(){const items=BANK.filter(t=>t[0]===$("level").value&&!state.used.includes(t[2])&&eligible(t));if(!items.length)return null;
 const usedByCat={};state.used.forEach(title=>{let t=BANK.find(q=>q[2]===title);if(t)usedByCat[t[1]]=(usedByCat[t[1]]||0)+1});const min=Math.min(...items.map(t=>usedByCat[t[1]]||0));return shuffle(items.filter(t=>(usedByCat[t[1]]||0)===min))[0]}
-function makeOrnamentSpots(){const a=[];for(let row=0;row<10;row++){const count=2+row;const y=9+row*7.8;const span=4+row*4.1;for(let c=0;c<count;c++)a.push([50-span/2+span*(c+.5)/count,y])}return a}
+
+function makeOrnamentSpots(){
+ const a=[];
+ for(let row=0;row<10;row++){
+  const count=row+2, width=10+row*7.2, y=19+row*7;
+  for(let col=0;col<count;col++)a.push([50-width/2+width*(col+.5)/count,y]);
+ }
+ return a;
+}
 const ornamentSlots=makeOrnamentSpots();
-function drawOrnaments(){const b=$("ornaments");b.replaceChildren();const [x,y,w,h]=TREE[$("theme").value];Object.assign(b.style,{left:x+"%",top:y+"%",width:w+"%",height:h+"%"});
-const colors=[];for(let i=0;i<Math.max(...state.scores);i++){if(i<state.scores[0])colors.push(0);if(i<state.scores[1])colors.push(1)}colors.forEach((p,i)=>{let slot=ornamentSlots[i%ornamentSlots.length],span=document.createElement("span");span.className="ornament "+(p?"student":"teacher");span.textContent=["●","✦","◆","★","●"][i%5];span.style.left=slot[0]+"%";span.style.top=slot[1]+"%";span.style.fontSize="clamp(8px,1.3vw,20px)";b.append(span)})}
+const SHAPES=["bauble","star","bell"];
+function ornamentSVG(shape){
+ const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+ svg.setAttribute("viewBox","0 0 40 44");svg.setAttribute("aria-hidden","true");
+ const paths={
+  bauble:'<path d="M17 8V5a3 3 0 0 1 6 0v3" fill="none" stroke="#ddbf84" stroke-width="2"/><rect x="16" y="8" width="8" height="4" rx="1" fill="#ddbf84"/><circle cx="20" cy="25" r="13" fill="currentColor" stroke="#d4ba83" stroke-width="1.2"/><ellipse cx="15" cy="19" rx="4" ry="6" fill="#fff" opacity=".28"/>',
+  star:'<path d="M20 3L25 14L37 16L28 25L30 38L20 32L10 38L12 25L3 16L15 14Z" fill="currentColor" stroke="#d4ba83" stroke-width="1.35" stroke-linejoin="round"/><path d="M20 11L20 27" stroke="#fff" opacity=".24" stroke-width="1.8"/>',
+  bell:'<path d="M18 6a2 2 0 0 1 4 0" stroke="#d4ba83" stroke-width="2" fill="none"/><path d="M12 16a8 8 0 0 1 16 0v9c0 3 2 5 5 8H7c3-3 5-5 5-8Z" fill="currentColor" stroke="#d4ba83" stroke-width="1.4"/><path d="M15 15c-2 5-2 9-2 12" stroke="#fff" stroke-width="2.5" opacity=".24" fill="none"/><circle cx="20" cy="35" r="4" fill="#d5b987"/>'
+ };
+ svg.innerHTML=paths[shape]||paths.bauble;return svg;
+}
+function syncScores(){state.scores=[0,1].map(p=>state.ornaments.filter(o=>o.owner===p).length)}
+function addOrnament(player){
+ const used=new Set(state.ornaments.map(o=>o.slot));
+ const free=state.slotOrder.find(i=>!used.has(i));
+ const id=++state.nextOrnamentId;
+ state.ornaments.push({id,owner:player,shape:SHAPES[Math.floor(Math.random()*3)],slot:free===undefined?state.ornaments.length%ornamentSlots.length:free});
+ state.animatedIds.push(id);syncScores();
+}
+function giveOrnament(from,to){
+ const possible=state.ornaments.filter(o=>o.owner===from);
+ if(!possible.length)return false;
+ possible[Math.floor(Math.random()*possible.length)].owner=to;
+ syncScores();return true;
+}
+function exchangeOrnaments(player){
+ const them=1-player;
+ if(state.scores[player]<1||state.scores[them]<2)return false;
+ const offered=state.ornaments.find(o=>o.owner===player);
+ const received=state.ornaments.filter(o=>o.owner===them).slice(0,2);
+ offered.owner=them;for(const o of received)o.owner=player;
+ syncScores();return true;
+}
+function drawOrnaments(){
+ const b=$("ornaments");b.replaceChildren();
+ const [x,y,w,h]=TREE[$("theme").value];
+ Object.assign(b.style,{left:x+"%",top:y+"%",width:w+"%",height:h+"%"});
+ const fresh=new Set(state.animatedIds);
+ for(const o of state.ornaments){
+  const [px,py]=ornamentSlots[o.slot%ornamentSlots.length];
+  const el=document.createElement("span");
+  el.className="ornament "+(o.owner===0?"teacher":"student")+(fresh.has(o.id)?" new":"");
+  el.style.left=px+"%";el.style.top=py+"%";
+  el.title=(o.owner===0?"Teacher":"Student")+" · "+o.shape;
+  el.append(ornamentSVG(o.shape));b.append(el);
+ }
+ state.animatedIds=[];
+}
 function fitScene(){
   const scene=$("scene"),wrap=$("sceneWrap");
   if(!scene||!wrap)return;
@@ -365,7 +429,7 @@ let small=document.createElement("button");small.textContent=n;small.className=o
 function showModal(){const m=$("modal");m.hidden=false}
 function hideModal(){state.active=null;$("modal").hidden=true;$("dialog").replaceChildren();render()}
 function actionButton(txt,cb,klass=""){const btn=document.createElement("button");btn.textContent=txt;btn.className=klass;btn.onclick=cb;return btn}
-function addPoints(p,n){state.scores[p]+=n;finish()}
+function addPoints(p,n){for(let i=0;i<n;i++)addOrnament(p);finish()}
 function finish(){state.opened.push(state.active.index);state.used.push(state.active.task[2]);state.turn=1-state.turn;hideModal()}
 function openDoor(index){
  if(state.ended||state.active!==null||state.opened.includes(index))return;
@@ -385,9 +449,9 @@ function openDoor(index){
  const button=(text,handler,cls)=>actionButton(text,handler,cls);
  const special=task[5];
  function accept(){
-   if(special==="both"){state.scores[0]++;state.scores[1]++;finish()}
-   else if(special==="transfer1"){state.scores[state.turn]++;state.scores[1-state.turn]--;finish()}
-   else if(special==="trade2"){state.scores[state.turn]++;state.scores[1-state.turn]-=2;finish()}
+   if(special==="both"){addOrnament(0);addOrnament(1);finish()}
+   else if(special==="transfer1"){giveOrnament(1-state.turn,state.turn);finish()}
+   else if(special==="trade2"){exchangeOrnaments(state.turn);finish()}
  }
  const award=()=>addPoints(state.turn,1);
  const noaward=()=>finish();
@@ -395,7 +459,7 @@ function openDoor(index){
    a.append(button("Declined / no decoration",noaward,"noaward"),button("Accepted",accept,"award"));
  }else if(special==="gamble"){
    a.append(button("Guaranteed +1",award,"noaward"),button("Gamble 50/50",()=>{
-     const points=Math.random()<.5?3:0;state.scores[state.turn]+=points;
+     const points=Math.random()<.5?3:0;for(let i=0;i<points;i++)addOrnament(state.turn);
      window.alert(points?"You won 3 decorations!":"No decorations this time.");finish()
    },"award"));
  }else if(special==="opponentchallenge"){
@@ -412,7 +476,7 @@ function openDoor(index){
  d.append(a);showModal()
 }
 
-function startNew(){if((state.opened.length||state.active!==null)&&!confirm("Start a new game? This clears the current progress."))return;state={turn:0,scores:[0,0],opened:[],used:[],numbers:shuffle(Array.from({length:24},(_,i)=>i+1)),ended:false,active:null};$("message").textContent="Classroom mode: two players share one screen. Choose a door to begin.";render()}
+function startNew(){if((state.opened.length||state.active!==null)&&!confirm("Start a new game? This clears the current progress."))return;state={turn:0,scores:[0,0],ornaments:[],nextOrnamentId:0,animatedIds:[],slotOrder:shuffle(Array.from({length:ornamentSlots.length},(_,i)=>i)),opened:[],used:[],numbers:shuffle(Array.from({length:24},(_,i)=>i+1)),ended:false,active:null};$("message").textContent="Classroom mode: two players share one screen. Choose a door to begin.";render()}
 function finale(){if(state.active!==null)return;if(!confirm("End this lesson and reveal the results?"))return;state.ended=true;render();const d=$("dialog");d.replaceChildren();const box=document.createElement("div");box.id="finish";const h=document.createElement("h2");h.className="finalTitle";h.textContent="✧ Christmas Grand Finale ✧";
 const p=document.createElement("p");p.textContent=state.opened.length+" of 24 doors opened";const s=document.createElement("h2");s.textContent="⚪ "+state.scores[0]+" : "+state.scores[1]+" 🔴";
 const w=document.createElement("h2");w.textContent=state.scores[0]===state.scores[1]?"A festive draw!":state.scores[0]>state.scores[1]?"Teacher wins!":"Student wins!";
