@@ -163,15 +163,125 @@ select,.control{color:#ffe7bb;background:#3a1b1d;border:1px solid #bb996a;border
 #scene[data-theme="winter"] .hotspot.opened {
   background:rgba(118,142,209,.13) !important;
 }
+
+/* V3 comprehensive responsive redesign: single source of truth for sizes/colors */
+html,body{height:100%;min-height:0}
+body{height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+header{flex:0 0 auto}
+.line{flex:0 0 auto;gap:8px}
+#sceneWrap{
+  flex:1 1 auto;min-height:0;min-width:0;
+  display:flex;align-items:center;justify-content:center;
+  width:100%!important;max-width:none;margin:0 auto;
+  overflow:hidden;background:#0b211c;
+}
+#scene{flex:0 0 auto;max-width:100%;margin:0;background-size:100% 100%;background-position:center}
+#bottom{flex:0 0 auto;width:100%;max-width:none;min-height:36px}
+#mobileBoard{display:none!important}
+/* Visible, clean white panel instead of warm/green translucent glass */
+#modal{background:rgba(7,16,22,.40)!important;padding:clamp(7px,2vw,15px)}
+#modal .dialog{
+  background:rgba(244,250,255,.83)!important;
+  background-image:none!important;
+  border:0!important;
+  color:#292b35;
+  backdrop-filter:blur(2.5px) saturate(.8)!important;
+  -webkit-backdrop-filter:blur(2.5px) saturate(.8)!important;
+  width:min(760px,100%);max-height:calc(100dvh - 16px);
+  padding:clamp(15px,2.4vw,30px);
+  overflow-y:auto;overscroll-behavior:contain;
+}
+#modal .dialog h2{color:#682034;line-height:1.12;overflow-wrap:break-word;padding-right:24px}
+#modal .dialog .question{color:#252632}
+#modal .dialog .teacherNotes{
+  background:rgba(250,252,255,.88)!important;color:#252632;
+  margin:15px 0 3px;
+}
+#modal .dialog .actions{
+  display:grid;grid-template-columns:repeat(var(--action-count,2),minmax(0,1fr));
+  align-items:stretch;gap:9px;margin-top:20px;
+}
+#modal .dialog .actions button{
+  width:100%;min-width:0;max-width:none;min-height:48px;
+  font-size:clamp(11px,1.4vw,15px);padding:8px 9px;
+}
+#modal .dialog .modalClose{
+  position:sticky;float:right;top:0;right:0;z-index:2;
+  width:38px;height:38px;min-height:38px;margin:-8px -8px 0 3px;
+  background:rgba(255,255,255,.85);color:#682034;
+}
+#rotateNotice{display:none}
+@media (max-width:900px) and (orientation:portrait){
+  body{overflow:hidden}
+  header{padding:10px 14px;justify-content:center}
+  header h1{font-size:clamp(18px,5vw,25px);text-align:center}
+  header .controls,.line,#bottom,#sceneWrap{display:none!important}
+  #rotateNotice{
+    display:flex!important;flex:1;min-height:0;
+    flex-direction:column;align-items:center;justify-content:center;
+    gap:13px;text-align:center;padding:24px;
+    background:radial-gradient(ellipse at 50% 30%,#31574a,#0b211c 70%);
+    font:16px/1.4 system-ui,sans-serif;color:#f9edcf;
+  }
+  #rotateNotice .rotateIcon{font-size:64px;line-height:1;color:#e4c98d}
+  #rotateNotice strong{font-size:clamp(20px,6vw,30px)}
+  #rotateNotice span{max-width:260px;opacity:.86}
+}
+/* Phone landscape gets a one-line compact topbar and full remaining scene height */
+@media (orientation:landscape) and (max-height:600px){
+  header{
+    padding:3px max(7px,env(safe-area-inset-right)) 3px max(7px,env(safe-area-inset-left));
+    flex-wrap:nowrap;gap:7px;min-height:38px;
+  }
+  header h1{flex:0 0 auto;font-size:0;letter-spacing:0;white-space:nowrap}
+  header h1::after{content:"Advent";font-size:16px}
+  .controls{flex:1;min-width:0;flex-wrap:nowrap;justify-content:flex-end;gap:4px;font-size:11px}
+  .controls label{min-width:0;gap:0}
+  .controls .controlLabel{display:none}
+  .controls select,.controls .control{
+    min-height:32px;border-radius:6px;font-size:11px;
+    padding:5px 5px;white-space:nowrap;
+  }
+  #level{width:49px;max-width:49px}
+  #theme{width:min(22vw,148px);max-width:148px;text-overflow:ellipsis}
+  .line{padding:3px 9px;min-height:25px;font-size:11px;gap:5px}
+  .line .scores{gap:8px;white-space:nowrap}
+  #bottom{display:none!important}
+  #rotateNotice{display:none!important}
+  #sceneWrap{max-height:none}
+  .hotspot{font-size:clamp(10px,1.6vw,18px)!important}
+  .ornament{font-size:clamp(9px,1.3vw,17px)!important}
+  #modal .dialog{max-height:calc(100dvh - 10px);width:min(730px,96vw);padding:12px 17px}
+  #modal .dialog h2{font-size:clamp(20px,3.5vw,28px);margin:3px 0 8px}
+  #modal .dialog .type{font-size:10px}
+  #modal .dialog .question{font-size:clamp(15px,2.15vw,18px);line-height:1.38;margin:9px 0}
+  #modal .dialog .teacherNotes{padding:8px 11px;margin:10px 0 3px;font-size:12px}
+  #modal .dialog .actions{margin-top:10px;gap:6px}
+  #modal .dialog .actions button{font-size:clamp(10px,1.6vw,12px);min-height:38px;padding:5px 6px}
+  #modal .dialog .modalClose{width:31px;height:31px;min-height:31px;font-size:21px;margin:-5px -9px 0 3px}
+}
+/* Narrow landscape phones sometimes require more space than a title */
+@media (orientation:landscape) and (max-width:720px) and (max-height:600px){
+  header h1::after{content:"❄";font-size:18px}
+  .controls{gap:3px}
+  #theme{width:min(26vw,125px)}
+  .controls select,.controls .control{padding:4px;font-size:10px}
+  .line .scores{gap:5px;font-size:10px}
+}
+/* Desktop: fit full game into viewport, text and controls don't dominate */
+@media (min-width:901px) and (min-height:601px){
+  header{padding:9px 16px}
+  #bottom{padding:6px 15px}
+}
 </style></head>
 <body><header><h1>❄ Christmas Advent Challenge</h1><div class="controls">
-<label>Level <select id="level"><option>B1</option><option selected>B2</option><option>C1</option></select></label>
-<label>Scene <select id="theme"><option value="village">Snowy Mountain Village</option><option value="workshop">Santa's Workshop</option><option value="food">Festive Food Table</option><option value="winter">Winter Town Square</option></select></label>
+<label><span class="controlLabel">Level</span><select id="level"><option>B1</option><option selected>B2</option><option>C1</option></select></label>
+<label><span class="controlLabel">Scene</span><select id="theme"><option value="village">Snowy Mountain Village</option><option value="workshop">Santa's Workshop</option><option value="food">Festive Food Table</option><option value="winter">Winter Town Square</option></select></label>
 <button class="control selected" id="classroom">Classroom ✓</button><button class="control" id="new">New Game</button><button class="control danger" id="end">End Session</button>
 </div></header>
 <div class="line"><span><strong id="turn">Teacher's turn</strong> · Find door <strong id="nextDoor">1</strong></span><div class="scores"><span>⚪ Teacher: <strong id="ts">0</strong></span><span>🔴 Student: <strong id="ss">0</strong></span><span><strong id="doors">0</strong>/24 opened</span></div></div>
 <main id="sceneWrap"><section id="scene" data-theme="village" aria-label="Christmas advent board and shared scoring tree"><div id="winterPanels" aria-hidden="true"><div class="winterPanel left"></div><div class="winterPanel right"></div></div><div id="hotspots"></div><div id="ornaments"></div></section></main>
-<div id="mobileBoard" aria-label="Mobile door selection"></div><div id="rotateNotice">↻ Rotate your phone horizontally to see the full Advent scene.</div>
+<div id="mobileBoard" aria-label="Mobile door selection"></div><div id="rotateNotice"><div class="rotateIcon" aria-hidden="true">↻</div><strong>Turn your phone sideways</strong><span>The Advent village is designed for landscape play.</span></div>
 <div id="bottom"><p id="message">Classroom mode: two players share one screen. Find door 1 to begin.</p><button id="help">How to play</button></div>
 <div id="modal" hidden><section class="dialog" id="dialog" role="dialog" aria-modal="true" aria-label="Christmas challenge"></section></div>
 <script>
@@ -239,7 +349,16 @@ function makeOrnamentSpots(){const a=[];for(let row=0;row<10;row++){const count=
 const ornamentSlots=makeOrnamentSpots();
 function drawOrnaments(){const b=$("ornaments");b.replaceChildren();const [x,y,w,h]=TREE[$("theme").value];Object.assign(b.style,{left:x+"%",top:y+"%",width:w+"%",height:h+"%"});
 const colors=[];for(let i=0;i<Math.max(...state.scores);i++){if(i<state.scores[0])colors.push(0);if(i<state.scores[1])colors.push(1)}colors.forEach((p,i)=>{let slot=ornamentSlots[i%ornamentSlots.length],span=document.createElement("span");span.className="ornament "+(p?"student":"teacher");span.textContent=["●","✦","◆","★","●"][i%5];span.style.left=slot[0]+"%";span.style.top=slot[1]+"%";span.style.fontSize="clamp(8px,1.3vw,20px)";b.append(span)})}
-function fitScene(){const scene=$("scene"),wrap=$("sceneWrap");const ratio=$("theme").value==="village"?1648/928:4/3;const available=Math.max(160,window.innerHeight-wrap.getBoundingClientRect().top-($("bottom").offsetHeight||35)-8);wrap.style.width=Math.min(window.innerWidth,1648,available*ratio)+"px";}
+function fitScene(){
+  const scene=$("scene"),wrap=$("sceneWrap");
+  if(!scene||!wrap)return;
+  const ratio=$("theme").value==="village"?1648/928:4/3;
+  const bounds=wrap.getBoundingClientRect();
+  if(bounds.width<1||bounds.height<1)return;
+  const width=Math.max(1,Math.min(bounds.width,bounds.height*ratio,1648));
+  scene.style.width=width+"px";
+  scene.style.height=(width/ratio)+"px";
+}
 function render(){let theme=$("theme").value;$("scene").dataset.theme=theme;$("ts").textContent=state.scores[0];$("ss").textContent=state.scores[1];$("doors").textContent=state.opened.length;$("turn").textContent=state.ended?"Session finished":(state.turn?"Student":"Teacher")+"'s turn";
 $("nextDoor").textContent=Math.min(24,state.opened.length+1);let wrap=$("hotspots"),mobile=$("mobileBoard");wrap.replaceChildren();mobile.replaceChildren();POS[theme].forEach(([x,y,w,h],index)=>{let opened=state.opened.includes(index),n=state.numbers[index];let btn=document.createElement("button");btn.className="hotspot"+(opened?" opened":"");btn.style.left=x+"%";btn.style.top=y+"%";btn.style.width=w+"%";btn.style.height=h+"%";btn.textContent=n;btn.setAttribute("aria-label","Door "+n+(opened?", completed":""));btn.disabled=opened||state.ended||state.active!==null;btn.onclick=()=>openDoor(index);wrap.append(btn);
 let small=document.createElement("button");small.textContent=n;small.className=opened?"opened":"";small.disabled=opened||state.ended||state.active!==null;small.onclick=()=>openDoor(index);mobile.append(small)});drawOrnaments();fitScene()}
@@ -262,7 +381,7 @@ function openDoor(index){
  if(task[1]==="picture"){const n=document.createElement("p");n.className="reminder";n.textContent="Picture illustration still pending; teacher guidance describes the intended picture.";d.append(n)}
  const teacherTurn=state.turn===0;
  if(teacherTurn){const notes=document.createElement("div");notes.className="teacherNotes";const heading=document.createElement("strong");heading.textContent="Teacher notes / answer";const body=document.createElement("div");body.textContent=task[4];notes.append(heading,body);d.append(notes)}
- const a=document.createElement("div");a.className="actions";
+ const a=document.createElement("div");a.className="actions";a.style.setProperty("--action-count",teacherTurn?"3":"2");
  const button=(text,handler,cls)=>actionButton(text,handler,cls);
  const special=task[5];
  function accept(){
@@ -299,7 +418,7 @@ const p=document.createElement("p");p.textContent=state.opened.length+" of 24 do
 const w=document.createElement("h2");w.textContent=state.scores[0]===state.scores[1]?"A festive draw!":state.scores[0]>state.scores[1]?"Teacher wins!":"Student wins!";
 const c=document.createElement("p");c.textContent="Our tree holds every decoration earned this session. Merry Christmas!";
 const a=document.createElement("div");a.className="actions";a.style.justifyContent="center";a.append(actionButton("See our decorated tree",hideModal),actionButton("New game",()=>{hideModal();startNew()},"alt"));box.append(h,p,s,w,c,a);d.append(box);showModal()}
-$("new").onclick=startNew;$("end").onclick=finale;$("level").onchange=()=>startNew();$("theme").onchange=render;window.addEventListener("resize",fitScene);$("classroom").onclick=()=>alert("Classroom mode is active. Both players use one screen. This Christmas prototype does not yet include remote synchronized rooms.");$("help").onclick=()=>alert("Take turns choosing a door. Speak, solve, or negotiate the revealed challenge. Players decide whether to award decorations. White is the teacher, dark red is the student. Click End Session at any time. This is a classroom prototype using the approved sample questions only.");
+$("new").onclick=startNew;$("end").onclick=finale;$("level").onchange=()=>startNew();$("theme").onchange=render;window.addEventListener("resize",fitScene);window.addEventListener("orientationchange",()=>requestAnimationFrame(fitScene));$("classroom").onclick=()=>alert("Classroom mode is active. Both players use one screen. This Christmas prototype does not yet include remote synchronized rooms.");$("help").onclick=()=>alert("Take turns choosing a door. Speak, solve, or negotiate the revealed challenge. Players decide whether to award decorations. White is the teacher, dark red is the student. Click End Session at any time. This is a classroom prototype using the approved sample questions only.");
 window.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("modal").hidden&&!state.ended){hideModal()}});
 startNew();
 </script></body></html>
