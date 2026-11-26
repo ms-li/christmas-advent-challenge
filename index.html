@@ -275,14 +275,14 @@ header{flex:0 0 auto}
 }
 
 /* Tree ornaments: three SVG shapes, individually positioned, animated once */
-.ornament{display:block;position:absolute;transform:translate(-50%,-50%);width:clamp(9px,1.55vw,24px);height:clamp(9px,1.55vw,24px);font-size:inherit;line-height:normal;text-shadow:none;filter:drop-shadow(0 1px 2px #07150fbb);pointer-events:none;z-index:3}
+.ornament{display:block;position:absolute;transform:translate(-50%,-50%);width:clamp(15px,2.25vw,36px);height:clamp(15px,2.25vw,36px);font-size:inherit;line-height:normal;text-shadow:none;filter:drop-shadow(0 1px 3px #07150fee) drop-shadow(0 0 2px #ffe0a088);pointer-events:none;z-index:3}
 .ornament svg{width:100%;height:100%;display:block;overflow:visible}
 .ornament.teacher{color:#fffdf7;-webkit-text-stroke:0}
-.ornament.student{color:#86172d;-webkit-text-stroke:0}
+.ornament.student{color:#a51637;-webkit-text-stroke:0}
 .ornament.new{animation:ornamentArrive .55s cubic-bezier(.2,1.1,.4,1) both}
 @keyframes ornamentArrive{0%{opacity:0;transform:translate(-50%,-90%) scale(.15) rotate(-22deg)}65%{opacity:1;transform:translate(-50%,-48%) scale(1.16) rotate(7deg)}100%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0)}}
 @media(prefers-reduced-motion:reduce){.ornament.new{animation:none}}
-@media(orientation:landscape) and (max-height:600px){.ornament{width:clamp(7px,1.25vw,16px);height:clamp(7px,1.25vw,16px)}}
+@media(orientation:landscape) and (max-height:600px){.ornament{width:clamp(12px,2vw,23px);height:clamp(12px,2vw,23px)}}
 </style></head>
 <body><header><h1>❄ Christmas Advent Challenge</h1><div class="controls">
 <label><span class="controlLabel">Level</span><select id="level"><option>B1</option><option selected>B2</option><option>C1</option></select></label>
